@@ -13,13 +13,10 @@ namespace Websocket.server
 {
     class Program
     {
-
-
         static void Main(string[] args)
         {
             try
             {
-
                 TcpListener listener = new TcpListener(IPAddress.Any, 8001);
                 /* Start Listeneting at the specified port */
                 listener.Start();
@@ -34,20 +31,15 @@ namespace Websocket.server
                     TcpClient client = listener.AcceptTcpClient();
                     new Thread(() => HandleClient(client)).Start();
                 }
-
                 //IAsyncResult results = listener.BeginAcceptTcpClient(new AsyncCallback(HandleTcpConnection), listener);
 
                 Console.ReadLine();
-
-
-
             }
             catch (Exception e)
             {
                 Console.WriteLine("Error... " + e.StackTrace);
             }
         }
-
 
         public static void HandleClient(TcpClient client)
         {
@@ -57,8 +49,6 @@ namespace Websocket.server
             while (true)
             {
                 while (!stream.DataAvailable) ;
-                
-
 
                 byte[] bytes = new byte[client.Available];
 
@@ -72,16 +62,16 @@ namespace Websocket.server
                     {
 
                         Byte[] response = Encoding.UTF8.GetBytes("HTTP/1.1 101 Switching Protocols" + Environment.NewLine
-        + "Connection: Upgrade" + Environment.NewLine
-        + "Upgrade: websocket" + Environment.NewLine
-        + "Sec-WebSocket-Accept: " + Convert.ToBase64String(
-            SHA1.Create().ComputeHash(
-                Encoding.UTF8.GetBytes(
-                    new Regex("Sec-WebSocket-Key: (.*)").Match(data).Groups[1].Value.Trim() + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-                )
-            )
-        ) + Environment.NewLine
-        + Environment.NewLine);
+                            + "Connection: Upgrade" + Environment.NewLine
+                            + "Upgrade: websocket" + Environment.NewLine
+                            + "Sec-WebSocket-Accept: " + Convert.ToBase64String(
+                                SHA1.Create().ComputeHash(
+                                    Encoding.UTF8.GetBytes(
+                                        new Regex("Sec-WebSocket-Key: (.*)").Match(data).Groups[1].Value.Trim() + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+                                    )
+                                )
+                            ) + Environment.NewLine
+                            + Environment.NewLine);
 
                         stream.Write(response, 0, response.Length);
                         handShake = true;
