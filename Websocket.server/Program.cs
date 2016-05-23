@@ -20,18 +20,42 @@ namespace Websocket.server
         {
             try
             {
+                int port = 8001;
+
+                SocketHandler handler = new SocketHandler(IPAddress.Any, port);
+                handler.OnStart += new SocketHandler.OnStartEventHandler((SocketEventArgs sarg) =>
+                {
+                    Console.WriteLine(string.Format("listeining on {0}. Press any key fot exit.", port));
+                });
+                
+                handler.OnClientConnected += new SocketHandler.OnClientConnectectedEventHandler((SocketEventArgs sarg) =>
+                {
+                    Console.WriteLine("new client connected. total client count: {0}", SocketHandler.ClientCount);
+                });
+
+                handler.OnClientDisconnected += new SocketHandler.OnClientDisconnectedEventHandler((SocketEventArgs sarg) =>
+                {
+                    Console.WriteLine("client disconnected. total client count: {0}", SocketHandler.ClientCount);
+                });
+
+                handler.OnEnd += new SocketHandler.OnEndEventHandler((SocketEventArgs sarg) => {
+                    Console.WriteLine("listener closed");
+                });
+
+                handler.OnData += new SocketHandler.OnDataEventHandler((SocketEventArgs sarg) => {
+                    Console.WriteLine(sarg.Data);
+
+                });
 
 
-                SocketHandler handler = new SocketHandler(IPAddress.Any, 8001);
                 handler.Start();
 
-                
-                
+
+
                 Console.ReadLine();
                 handler.Stop();
                 Console.ReadLine();
 
-                
 
             }
             catch (Exception e)
@@ -39,10 +63,6 @@ namespace Websocket.server
                 Console.WriteLine("Error... " + e.StackTrace);
             }
         }
-
-
-
-
 
     }
 }
