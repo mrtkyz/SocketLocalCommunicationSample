@@ -13,16 +13,39 @@ namespace socket.lib
 {
     public class SocketHandler
     {
+        #region properties
         private IPAddress IpAddress { get; set; }
 
         private int Port { get; set; }
 
         private List<Thread> _threads { get; set; }
+        private Thread _main { get; set; }
 
         private bool _listening { get; set; }
 
         private TcpListener _listener { get; set; }
 
+        public static int ClientCount { get; private set; }
+        #endregion
+
+        #region events
+        public delegate void OnDataEventHandler(SocketEventArgs e);
+        public event OnDataEventHandler OnData;
+
+        public delegate void OnStartEventHandler(SocketEventArgs e);
+        public event OnStartEventHandler OnStart;
+
+        public delegate void OnEndEventHandler(SocketEventArgs e);
+        public event OnEndEventHandler OnEnd;
+
+        public delegate void OnClientConnectectedEventHandler(SocketEventArgs e);
+        public event OnClientConnectectedEventHandler OnClientConnected;
+
+        public delegate void OnClientDisconnectedEventHandler(SocketEventArgs e);
+        public event OnClientDisconnectedEventHandler OnClientDisconnected;
+        #endregion
+
+        #region public methods
         public SocketHandler(IPAddress address, int port)
         {
             this.IpAddress = address;
@@ -33,19 +56,34 @@ namespace socket.lib
 
         public void Start()
         {
-            _listener = new TcpListener(this.IpAddress, this.Port);
-
-            _listener.Start();
-            _listening = true;
-
-            while (_listening)
+            if (_main != null)
             {
-                TcpClient client = _listener.AcceptTcpClient();
-                Thread t = new Thread(() => HandleClient(client));
-                _threads.Add(t);
-
-                t.Start();
+                _main.Abort();
             }
+
+            _main = new Thread(() =>
+            {
+                _listener = new TcpListener(this.IpAddress, this.Port);
+
+                _listener.Start();
+                _listening = true;
+
+                if (OnStart != null)
+                {
+                    OnStart(null);
+                }
+
+                while (_listening)
+                {
+                    TcpClient client = _listener.AcceptTcpClient();
+                    Thread t = new Thread(() => HandleClient(client));
+                    _threads.Add(t);
+
+                    t.Start();
+                }
+            });
+
+            _main.Start();
         }
 
         public void Stop()
@@ -53,15 +91,22 @@ namespace socket.lib
 
             _listening = false;
             _listener.Stop();
+            _main.Abort();
+            
 
+            if (OnEnd != null)
+            {
+                OnEnd(null);
+            }
 
-        }
+        } 
+        #endregion
 
+        #region privates methods
         private void HandleClient(TcpClient client)
         {
             NetworkStream stream = client.GetStream();
             bool handShake = false;
-
 
             while (_listening)
             {
@@ -69,10 +114,16 @@ namespace socket.lib
                 {
                     if (!this.IsConnected(client))
                     {
+                        SocketHandler.ClientCount--;
+                        if (OnClientDisconnected != null)
+                        {
+                            OnClientDisconnected(new SocketEventArgs() { Client = client });
+                        }
+                        
                         return;
                     }
                 }
-                
+
                 byte[] bytes = new byte[client.Available];
 
                 stream.Read(bytes, 0, bytes.Length);
@@ -98,11 +149,20 @@ namespace socket.lib
 
                         stream.Write(response, 0, response.Length);
                         handShake = true;
+                        SocketHandler.ClientCount++;
+
+                        if (OnClientConnected != null)
+                        {
+                            OnClientConnected(new SocketEventArgs() { Client = client, Data = data });
+                        }
                     }
                 }
                 else {
-                    string data = GetDecodedData(bytes, bytes.Length);//Encoding.UTF8.GetString(DecodeMessage(bytes));
-                    Console.WriteLine(data);
+                    if (OnData != null)
+                    {
+                        string data = GetDecodedData(bytes, bytes.Length);
+                        OnData(new SocketEventArgs() { Client = client, Data = data });
+                    }
                 }
 
             }
@@ -186,6 +246,7 @@ namespace socket.lib
             }
 
         }
+        #endregion
 
     }
 }
