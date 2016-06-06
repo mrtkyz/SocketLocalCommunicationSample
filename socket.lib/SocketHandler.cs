@@ -13,6 +13,14 @@ namespace socket.lib
 {
     public class SocketHandler
     {
+        public SocketHandler(IPAddress address, int port)
+        {
+            this.IpAddress = address;
+            this.Port = port;
+
+            _threads = new List<Thread>();
+        }
+
         #region properties
         private IPAddress IpAddress { get; set; }
 
@@ -46,13 +54,6 @@ namespace socket.lib
         #endregion
 
         #region public methods
-        public SocketHandler(IPAddress address, int port)
-        {
-            this.IpAddress = address;
-            this.Port = port;
-
-            _threads = new List<Thread>();
-        }
 
         public void Start()
         {

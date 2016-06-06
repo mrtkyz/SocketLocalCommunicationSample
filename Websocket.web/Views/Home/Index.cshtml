@@ -1,0 +1,22 @@
+﻿<div id="echo">
+    <div id="echo-config" style="float: left;">
+        <strong>Location:</strong><br>
+        <input class="draw-border" id="wsUri" size="35">
+        <br>
+        <input class="draw-border echo-checkbox" type="checkbox" id="secureCb" onclick="toggleTls();">
+        <span id="secureCbLabel" style="font-size: smaller; color: black;">Use secure WebSocket (TLS)</span><br>
+        <button class="echo-button" id="connect">Connect</button>
+        <button class="echo-button" id="disconnect" disabled="">Disconnect</button>
+        <br>
+        <br>
+        <strong>Message:</strong><br>
+        <input class="draw-border" id="sendMessage" size="35" value="Rock it with HTML5 WebSocket" disabled="">
+        <br>
+        <button class="echo-button" id="send" disabled="">Send</button>
+    </div>
+    <div id="echo-log" style="float: left; margin-left: 20px; padding-left: 20px; width: 350px; border-left: solid 1px #cccccc;">
+        <strong>Log:</strong>
+        <div id="consoleLog"></div>
+        <button class="echo-button" id="clearLogBut" style="position: relative; top: 3px;">Clear log</button>
+    </div>
+</div>
