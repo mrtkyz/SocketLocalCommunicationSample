@@ -45,6 +45,9 @@ namespace Websocket.server
                 handler.OnData += new SocketHandler.OnDataEventHandler((SocketEventArgs sarg) => {
                     Console.WriteLine(sarg.Data);
 
+                    //write data
+                    sarg.WriteToStream("OK");
+
                 });
 
 

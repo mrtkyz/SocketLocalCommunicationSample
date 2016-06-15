@@ -11,5 +11,16 @@ namespace socket.lib
     {
         public TcpClient Client { get; set; }
         public string Data { get; set; }
+
+        public NetworkStream Stream { get; set; }
+
+        public void WriteToStream(string response)
+        {
+            if(this.Stream != null)
+            {
+                byte[] en = SocketHandler.EncodeMessageToSend(response);
+                this.Stream.Write(en, 0, en.Length);
+            }
+        }
     }
 }
