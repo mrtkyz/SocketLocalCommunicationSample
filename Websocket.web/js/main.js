@@ -54,7 +54,7 @@ function initializeLocation() {
         secureCb.checked = true;
     }
     var wsPort = (window.location.port.toString() == "" ? "" : ":" + window.location.port)
-    wsUri.value = wsScheme + "//echo.websocket.org" + wsPort
+    wsUri.value = wsScheme + "//localhost" + wsPort
 }
 
 function toggleTlS() {
