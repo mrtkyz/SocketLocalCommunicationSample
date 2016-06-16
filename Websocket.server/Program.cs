@@ -46,13 +46,13 @@ namespace Websocket.server
                     Console.WriteLine(sarg.Data);
 
                     //write data
-                    sarg.WriteToStream("OK");
+                    SocketHandler.WriteToStream(sarg.Stream, "OK");
 
                 });
 
 
                 handler.Start();
-
+                
 
 
                 Console.ReadLine();

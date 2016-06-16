@@ -27,6 +27,8 @@ namespace socket.lib
         private int Port { get; set; }
 
         private List<Thread> _threads { get; set; }
+
+        private Dictionary<string, TcpClient> _clients { get; set; }
         private Thread _main { get; set; }
 
         private bool _listening { get; set; }
@@ -79,6 +81,7 @@ namespace socket.lib
                     TcpClient client = _listener.AcceptTcpClient();
                     Thread t = new Thread(() => HandleClient(client));
                     _threads.Add(t);
+                    //_clients.Add("", client);
 
                     t.Start();
                 }
@@ -250,7 +253,7 @@ namespace socket.lib
         #endregion
 
         #region statics
-        internal static byte[] EncodeMessageToSend(string message)
+        public static byte[] EncodeMessageToSend(string message)
         {
             byte[] response;
             byte[] bytesRaw = Encoding.UTF8.GetBytes(message);
@@ -307,6 +310,15 @@ namespace socket.lib
 
             return response;
         } 
+        
+        public static void WriteToStream(NetworkStream stream, string message)
+        {
+            if (stream != null)
+            {
+                byte[] en = SocketHandler.EncodeMessageToSend(message);
+                stream.Write(en, 0, en.Length);
+            }
+        }
         #endregion
 
     }
